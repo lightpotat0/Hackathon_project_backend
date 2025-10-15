@@ -17,7 +17,9 @@ router.post("/register", async (req, res) => {
         const password_am = await bcrypt.hash(password, 10)
 
         //criando user
-        const user = new User({ name, email, password_am, date, telefone });
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = new User({ name, email, password: hashedPassword, date, telefone });
+
         await user.save();
 
         res.status(201).json({ message: "Usuário criado" });
@@ -37,7 +39,7 @@ router.post("/login", async (req, res) => {
         if (!user) return res.status(400).json({ message: "Usuário não encontrado" });
         
         //compara a senha com a armazenada
-        const isvalid = await bcrypt.compare(password, user.password_am);
+        const isvalid = await bcrypt.compare(password, user.password);
         if (!isvalid) return res.status(400).json({ message: "Senha errada" });
 
         //gerador de token
